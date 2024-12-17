@@ -1,0 +1,70 @@
+---
+title: "Color palette"
+format: html
+editor: visual
+---
+
+## Loading packages
+
+```{r}
+#| include: false
+#| echo: false
+#| warning: false
+library(tidyverse)
+library(scales)
+library(ggsci)
+library(magrittr)
+library(wesanderson)
+library(MetBrewer)
+```
+
+## Running Code
+
+```{r}
+sci_palettes <- list(
+  aaas=pal_aaas()(10),
+  npg=pal_npg()(10),
+  nejm=pal_nejm()(8),
+  lancet=pal_lancet()(9),
+  jama=pal_jama()(7),
+  jco=pal_jco()(10),
+  d3=pal_d3()(10),
+  locuszoom=pal_locuszoom()(7),
+  uchicago=pal_uchicago()(9),
+  startek=pal_startrek()(7),
+  tron=pal_tron()(7),
+  futurama=pal_futurama()(12),
+  simpsons=pal_simpsons()(16),
+  cosmic=pal_cosmic("hallmarks_light")(10),
+  rickandmorty=pal_rickandmorty("schwifty")(12),
+  flatui=pal_flatui("default")(10),
+  frontiers=pal_frontiers("default")(10)
+)
+
+
+df<-unname(unlist(sci_palettes)) %>% 
+  as.data.frame()%>%
+  bind_rows(unlist(lapply(names(wes_palettes),wes_palette))%>%
+  as.data.frame())%>%
+  bind_rows(unlist(lapply(names(MetBrewer::MetPalettes),met.brewer))%>%
+  as.data.frame())%>%
+  distinct()%>%
+  mutate(
+    n=row_number(),
+    x=(row_number()-1)%%12+1,
+    y=ceiling(n/12)
+  )%>%
+  set_colnames(c("color","n","x","y"))%>%
+  as_tibble()
+
+plot <- df%>%ggplot(aes(x=x,y=rev(y)))+
+  geom_tile(aes(fill=I(color),height=0.88,width=0.93))+
+  geom_text(aes(label=color),color="white",size=10,size.unit="pt")+
+  theme_void()+
+  theme(
+    plot.margin=margin(-1.5,-1,-1.5,-1,unit="cm")
+  )
+
+plot
+# ggsave(plot,file="plot.pdf",width=11.30,height=12.41,unit="in",dpi=300)
+```
